@@ -258,7 +258,33 @@
             }).format(date);
         }
 
-        function displayEventDetails(response) {
+        async function retrieveUserPhoto(userId) {
+            try {
+                const fileName = `${userId}-profile-picture.png`;
+                const response = await fetch(
+                    `https://oqrcqgczpemsynfczdgj.supabase.co/functions/v1/get-profile-picture?userId=${userId}`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer your-anon-key'
+                        }
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error('Failed to get profile picture URL');
+                }
+
+                const data = await response.json();
+                return data.url;
+            } catch (error) {
+                console.error('Error getting profile picture:', error);
+                return null;
+            }
+        }
+
+        async function displayEventDetails(response) {
             document.getElementById('loading').style.display = 'none';
             document.getElementById('event-content').style.display = 'block';
             
@@ -291,15 +317,24 @@
             const attendeesList = document.getElementById('attendees-list');
             attendeesList.innerHTML = '';
             
-            eventUsers.forEach(user => {
+            for (const user of eventUsers) {
                 const userDiv = document.createElement('div');
                 userDiv.className = 'guest-item';
+                
                 userDiv.innerHTML = `
-                    <div class="guest-avatar"></div>
+                    <div class="guest-avatar" id="avatar-${user.userId}"></div>
                     <div>${user.userId}</div>
                 `;
                 attendeesList.appendChild(userDiv);
-            });
+
+                const photoUrl = await retrieveUserPhoto(user.userId);
+                if (photoUrl) {
+                    const avatarDiv = document.getElementById(`avatar-${user.userId}`);
+                    avatarDiv.style.backgroundImage = `url(${photoUrl})`;
+                    avatarDiv.style.backgroundSize = 'cover';
+                    avatarDiv.style.backgroundPosition = 'center';
+                }
+            }
         }
 
         function showError(message) {
