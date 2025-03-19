@@ -95,11 +95,13 @@
             flex: 1;
             text-align: center;
             cursor: pointer;
+            border-bottom: 2px solid transparent;
+            color: #588157;
         }
 
         .status-tab.active {
-            background-color: #588157;
-            color: white;
+            border-bottom: 2px solid #588157;
+            font-weight: bold;
         }
 
         .guest-item {
@@ -115,6 +117,17 @@
             border-radius: 50%;
             margin-right: 15px;
             background-color: #588157;
+        }
+
+        .guest-name {
+            font-size: 1.1em;
+            margin-left: 15px;
+        }
+
+        .guest-status {
+            color: #588157;
+            margin-left: auto;
+            font-size: 0.9em;
         }
 
         .download-app {
@@ -179,8 +192,8 @@
             <div class="guests-section">
                 <div class="section-label">Event Guests</div>
                 <div class="status-tabs">
-                    <div class="status-tab active">Attending</div>
-                    <div class="status-tab">Undecided</div>
+                    <div class="status-tab active" onclick="showGuestsByStatus('Accepted')">Attending</div>
+                    <div class="status-tab" onclick="showGuestsByStatus('Undecided')">Undecided</div>
                 </div>
                 <div id="attendees-list"></div>
             </div>
@@ -194,6 +207,8 @@
     </div>
 
     <script>
+        let currentEventUsers = [];
+
         async function fetchEventDetails() {
             const urlParams = new URLSearchParams(window.location.search);
             const eventId = urlParams.get('id');
@@ -283,6 +298,41 @@
             }
         }
 
+        function showGuestsByStatus(status) {
+            // Update tab styling
+            document.querySelectorAll('.status-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent === (status === 'Accepted' ? 'Attending' : 'Undecided')) {
+                    tab.classList.add('active');
+                }
+            });
+
+            // Filter and display users
+            const filteredUsers = currentEventUsers.filter(user => user.status === status);
+            displayGuests(filteredUsers);
+        }
+
+        function displayGuests(users) {
+            const attendeesList = document.getElementById('attendees-list');
+            attendeesList.innerHTML = '';
+            
+            users.forEach(async user => {
+                const userDiv = document.createElement('div');
+                userDiv.className = 'guest-item';
+                
+                const photoUrl = await retrieveUserPhoto(user.userId);
+                
+                userDiv.innerHTML = `
+                    <div class="guest-avatar" id="avatar-${user.userId}" 
+                         style="background-color: #eee; ${photoUrl ? `background-image: url('${photoUrl}');` : ''}
+                         background-size: cover; background-position: center;">
+                    </div>
+                    <div class="guest-name">${user.firstName} ${user.lastName}</div>
+                `;
+                attendeesList.appendChild(userDiv);
+            });
+        }
+
         async function displayEventDetails(response) {
             document.getElementById('loading').style.display = 'none';
             document.getElementById('event-content').style.display = 'block';
@@ -313,32 +363,11 @@
                 itemsList.appendChild(itemCard);
             });
 
-            const attendeesList = document.getElementById('attendees-list');
-            attendeesList.innerHTML = '';
+            // Store users globally for tab switching
+            currentEventUsers = eventUsers;
             
-            for (const user of eventUsers) {
-                const userDiv = document.createElement('div');
-                userDiv.className = 'guest-item';
-                
-                // Create initial structure with a loading state
-                userDiv.innerHTML = `
-                    <div class="guest-avatar" id="avatar-${user.userId}" 
-                         style="background-color: #eee;">
-                    </div>
-                    <div>${user.userId}</div>
-                `;
-                attendeesList.appendChild(userDiv);
-
-                // Load profile picture
-                const photoUrl = await retrieveUserPhoto(user.userId);
-                if (photoUrl) {
-                    const avatarDiv = document.getElementById(`avatar-${user.userId}`);
-                    avatarDiv.style.backgroundImage = `url('${photoUrl}')`;
-                    avatarDiv.style.backgroundSize = 'cover';
-                    avatarDiv.style.backgroundPosition = 'center';
-                    avatarDiv.style.backgroundColor = 'transparent';
-                }
-            }
+            // Show attending users by default
+            showGuestsByStatus('Accepted');
         }
 
         function showError(message) {
