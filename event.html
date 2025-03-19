@@ -130,7 +130,7 @@
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer your-anon-key'
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xcmNxZ2N6cGVtc3luZmN6ZGdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjUwNTgyNzEsImV4cCI6MjA0MDYzNDI3MX0.9-uMHOaYkUpjkPhXRt6RKEX5xVeaSEeazWc8rLok7MY'
                     }
                 });
 
@@ -163,7 +163,7 @@
         }
 
         function displayEventDetails(response) {
-            console.log('Display function received:', response); // Debug log
+            console.log('Display function received:', response);
             
             document.getElementById('loading').style.display = 'none';
             document.getElementById('event-content').style.display = 'block';
@@ -177,8 +177,12 @@
             // Display basic event information
             document.getElementById('event-title').textContent = event.name || 'Untitled Event';
             document.getElementById('event-description').textContent = event.description || 'No description available';
-            document.getElementById('event-datetime').textContent = event.dateTime ? new Date(event.dateTime).toLocaleString() : 'Date not set';
-            document.getElementById('event-location').textContent = event.location || 'Location not specified';
+            // Update to use startDate and endDate
+            const startDate = event.startDate ? new Date(event.startDate).toLocaleString() : 'Date not set';
+            const endDate = event.endDate ? new Date(event.endDate).toLocaleString() : 'Date not set';
+            document.getElementById('event-datetime').textContent = `From: ${startDate} To: ${endDate}`;
+            // Since there's no direct location field, we'll show the event type instead
+            document.getElementById('event-location').textContent = `Event Type: ${event.type || 'Not specified'}`;
 
             // Display items being brought (pantry items)
             const itemsList = document.getElementById('items-list');
@@ -188,7 +192,13 @@
                 pantryItems.forEach(item => {
                     const li = document.createElement('li');
                     li.className = 'item';
-                    li.textContent = `${item.name || 'Unnamed item'} - Quantity: ${item.quantity || 'Not specified'}`;
+                    const itemText = [
+                        item.name || 'Unnamed item',
+                        `Quantity: ${item.quantity || 'Not specified'}`,
+                        item.store ? `Store: ${item.store}` : '',
+                        item.notes ? `Notes: ${item.notes}` : ''
+                    ].filter(Boolean).join(' - ');
+                    li.textContent = itemText;
                     itemsList.appendChild(li);
                 });
             }
@@ -219,7 +229,7 @@
                 eventUsers.forEach(user => {
                     const div = document.createElement('div');
                     div.className = 'item';
-                    div.textContent = `${user.userId || 'Unknown user'} - Status: ${user.status || 'Unknown status'}`;
+                    div.textContent = `User ID: ${user.userId || 'Unknown user'} - Status: ${user.status || 'Unknown status'}`;
                     attendeesList.appendChild(div);
                 });
             }
