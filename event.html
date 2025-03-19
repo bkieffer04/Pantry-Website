@@ -126,50 +126,86 @@
             }
 
             try {
-                // Instead of direct Supabase call, use Edge/Serverless function
                 const response = await fetch(`https://oqrcqgczpemsynfczdgj.supabase.co/functions/v1/web_event?id=${eventId}`, {
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer your-anon-key'
                     }
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to fetch event details');
+                    const errorData = await response.json();
+                    throw new Error(`API Error: ${errorData.error || response.statusText}`);
                 }
 
-                const eventDetails = await response.json();
-                displayEventDetails(eventDetails);
+                const data = await response.json();
+                console.log('Received data:', data); // Debug log
+                
+                if (!data) {
+                    throw new Error('No data received from API');
+                }
+
+                displayEventDetails(data);
             } catch (error) {
-                showError('Failed to load event details');
-                console.error(error);
+                console.error('Error details:', error);
+                showError(`Failed to load event details: ${error.message}`);
             }
         }
 
-        function displayEventDetails(event) {
+        function displayEventDetails(response) {
             document.getElementById('loading').style.display = 'none';
             document.getElementById('event-content').style.display = 'block';
             
-            document.getElementById('event-title').textContent = event.title;
+            // Extract event data from the response
+            const event = response.event_data;
+            const pantryItems = response.pantry_items || [];
+            const requestedItems = response.requested_items || [];
+            const eventUsers = response.event_users || [];
+            
+            // Display basic event information
+            document.getElementById('event-title').textContent = event.name;
             document.getElementById('event-description').textContent = event.description;
-            document.getElementById('event-datetime').textContent = new Date(event.datetime).toLocaleString();
+            document.getElementById('event-datetime').textContent = new Date(event.dateTime).toLocaleString();
             document.getElementById('event-location').textContent = event.location;
 
-            // Display items
+            // Display items being brought (pantry items)
             const itemsList = document.getElementById('items-list');
-            event.items.forEach(item => {
+            itemsList.innerHTML = ''; // Clear existing items
+            
+            pantryItems.forEach(item => {
                 const li = document.createElement('li');
                 li.className = 'item';
-                li.textContent = `${item.name} - Brought by: ${item.brought_by}`;
+                li.textContent = `${item.name} - Quantity: ${item.quantity}`;
                 itemsList.appendChild(li);
             });
 
-            // Display attendees
+            // Display requested items if any
+            if (requestedItems.length > 0) {
+                const requestedSection = document.createElement('div');
+                requestedSection.className = 'section';
+                requestedSection.innerHTML = `
+                    <div class="section-title">Requested Items</div>
+                    <ul class="item-list">
+                        ${requestedItems.map(item => 
+                            `<li class="item">${item.name} - Quantity: ${item.quantity}</li>`
+                        ).join('')}
+                    </ul>
+                `;
+                document.getElementById('event-content').insertBefore(
+                    requestedSection, 
+                    document.querySelector('.download-app')
+                );
+            }
+
+            // Display attendees (event users)
             const attendeesList = document.getElementById('attendees-list');
-            event.attendees.forEach(attendee => {
+            attendeesList.innerHTML = ''; // Clear existing attendees
+            
+            eventUsers.forEach(user => {
                 const div = document.createElement('div');
                 div.className = 'item';
-                div.textContent = `${attendee.name} - ${attendee.status}`;
+                div.textContent = `${user.userId} - Status: ${user.status}`;
                 attendeesList.appendChild(div);
             });
         }
