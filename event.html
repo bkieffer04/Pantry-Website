@@ -260,9 +260,8 @@
 
         async function retrieveUserPhoto(userId) {
             try {
-                const fileName = `${userId}-profile-picture.png`;
                 const response = await fetch(
-                    `https://oqrcqgczpemsynfczdgj.supabase.co/functions/v1/web_profile_photo?userId=${userId}`,
+                    `https://oqrcqgczpemsynfczdgj.supabase.co/functions/v1/get-profile-picture?userId=${userId}`,
                     {
                         method: 'GET',
                         headers: {
@@ -277,7 +276,7 @@
                 }
 
                 const data = await response.json();
-                return data.url;
+                return data.url; // This will return the signed URL from the response
             } catch (error) {
                 console.error('Error getting profile picture:', error);
                 return null;
@@ -321,18 +320,23 @@
                 const userDiv = document.createElement('div');
                 userDiv.className = 'guest-item';
                 
+                // Create initial structure with a loading state
                 userDiv.innerHTML = `
-                    <div class="guest-avatar" id="avatar-${user.userId}"></div>
+                    <div class="guest-avatar" id="avatar-${user.userId}" 
+                         style="background-color: #eee;">
+                    </div>
                     <div>${user.userId}</div>
                 `;
                 attendeesList.appendChild(userDiv);
 
+                // Load profile picture
                 const photoUrl = await retrieveUserPhoto(user.userId);
                 if (photoUrl) {
                     const avatarDiv = document.getElementById(`avatar-${user.userId}`);
-                    avatarDiv.style.backgroundImage = `url(${photoUrl})`;
+                    avatarDiv.style.backgroundImage = `url('${photoUrl}')`;
                     avatarDiv.style.backgroundSize = 'cover';
                     avatarDiv.style.backgroundPosition = 'center';
+                    avatarDiv.style.backgroundColor = 'transparent';
                 }
             }
         }
