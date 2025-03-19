@@ -140,13 +140,22 @@
                 }
 
                 const data = await response.json();
-                console.log('Received data:', data); // Debug log
-                
+                console.log('Raw API response:', data); // Debug log to see exact structure
+
                 if (!data) {
                     throw new Error('No data received from API');
                 }
 
-                displayEventDetails(data);
+                // Defensive check for arrays before calling displayEventDetails
+                const safeData = {
+                    event_data: data.event_data || {},
+                    pantry_items: Array.isArray(data.pantry_items) ? data.pantry_items : [],
+                    requested_items: Array.isArray(data.requested_items) ? data.requested_items : [],
+                    event_users: Array.isArray(data.event_users) ? data.event_users : []
+                };
+
+                console.log('Processed data:', safeData); // Debug log to see processed structure
+                displayEventDetails(safeData);
             } catch (error) {
                 console.error('Error details:', error);
                 showError(`Failed to load event details: ${error.message}`);
@@ -154,41 +163,45 @@
         }
 
         function displayEventDetails(response) {
+            console.log('Display function received:', response); // Debug log
+            
             document.getElementById('loading').style.display = 'none';
             document.getElementById('event-content').style.display = 'block';
             
-            // Extract event data from the response
-            const event = response.event_data;
+            // Extract event data with defaults
+            const event = response.event_data || {};
             const pantryItems = response.pantry_items || [];
             const requestedItems = response.requested_items || [];
             const eventUsers = response.event_users || [];
             
             // Display basic event information
-            document.getElementById('event-title').textContent = event.name;
-            document.getElementById('event-description').textContent = event.description;
-            document.getElementById('event-datetime').textContent = new Date(event.dateTime).toLocaleString();
-            document.getElementById('event-location').textContent = event.location;
+            document.getElementById('event-title').textContent = event.name || 'Untitled Event';
+            document.getElementById('event-description').textContent = event.description || 'No description available';
+            document.getElementById('event-datetime').textContent = event.dateTime ? new Date(event.dateTime).toLocaleString() : 'Date not set';
+            document.getElementById('event-location').textContent = event.location || 'Location not specified';
 
             // Display items being brought (pantry items)
             const itemsList = document.getElementById('items-list');
             itemsList.innerHTML = ''; // Clear existing items
             
-            pantryItems.forEach(item => {
-                const li = document.createElement('li');
-                li.className = 'item';
-                li.textContent = `${item.name} - Quantity: ${item.quantity}`;
-                itemsList.appendChild(li);
-            });
+            if (Array.isArray(pantryItems)) {
+                pantryItems.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'item';
+                    li.textContent = `${item.name || 'Unnamed item'} - Quantity: ${item.quantity || 'Not specified'}`;
+                    itemsList.appendChild(li);
+                });
+            }
 
             // Display requested items if any
-            if (requestedItems.length > 0) {
+            if (Array.isArray(requestedItems) && requestedItems.length > 0) {
                 const requestedSection = document.createElement('div');
                 requestedSection.className = 'section';
                 requestedSection.innerHTML = `
                     <div class="section-title">Requested Items</div>
                     <ul class="item-list">
                         ${requestedItems.map(item => 
-                            `<li class="item">${item.name} - Quantity: ${item.quantity}</li>`
+                            `<li class="item">${item.name || 'Unnamed item'} - Quantity: ${item.quantity || 'Not specified'}</li>`
                         ).join('')}
                     </ul>
                 `;
@@ -202,12 +215,14 @@
             const attendeesList = document.getElementById('attendees-list');
             attendeesList.innerHTML = ''; // Clear existing attendees
             
-            eventUsers.forEach(user => {
-                const div = document.createElement('div');
-                div.className = 'item';
-                div.textContent = `${user.userId} - Status: ${user.status}`;
-                attendeesList.appendChild(div);
-            });
+            if (Array.isArray(eventUsers)) {
+                eventUsers.forEach(user => {
+                    const div = document.createElement('div');
+                    div.className = 'item';
+                    div.textContent = `${user.userId || 'Unknown user'} - Status: ${user.status || 'Unknown status'}`;
+                    attendeesList.appendChild(div);
+                });
+            }
         }
 
         function showError(message) {
