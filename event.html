@@ -157,6 +157,7 @@
     document.getElementById('event-content').style.display = 'block';
     console.log(data);
     const { event_data: e, event_items = [] } = data;
+    console.log(e);
     document.getElementById('event-type').textContent = e.type || '';
     document.getElementById('event-title').textContent = e.name || '';
     document.getElementById('event-description').textContent = e.description || '';
