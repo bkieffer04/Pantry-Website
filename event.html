@@ -155,7 +155,7 @@
   function displayEventDetails(data) {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('event-content').style.display = 'block';
-
+    console.log(data);
     const { event_data: e, event_items = [] } = data;
     document.getElementById('event-type').textContent = e.type || '';
     document.getElementById('event-title').textContent = e.name || '';
