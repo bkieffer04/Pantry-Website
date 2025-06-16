@@ -219,11 +219,11 @@
             }
 
             try {
-                const response = await fetch(`https://oqrcqgczpemsynfczdgj.supabase.co/functions/v1/web_event?id=${eventId}`, {
+                const response = await fetch(`https://knutxzxcxkoojhnlerht.supabase.co/functions/v1/web_event?id=${eventId}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xcmNxZ2N6cGVtc3luZmN6ZGdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjUwNTgyNzEsImV4cCI6MjA0MDYzNDI3MX0.9-uMHOaYkUpjkPhXRt6RKEX5xVeaSEeazWc8rLok7MY'
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtudXR4enhjeGtvb2pobmxlcmh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNTU4MTcsImV4cCI6MjA2NDYzMTgxN30.m8nFwSnCezcVM24ELXKrmv4QFe2P0jMSBPfDK5JUu_A'
                     }
                 });
 
@@ -276,12 +276,12 @@
         async function retrieveUserPhoto(userId) {
             try {
                 const response = await fetch(
-                    `https://oqrcqgczpemsynfczdgj.supabase.co/functions/v1/web_profile_photo?userId=${userId}`,
+                    `https://knutxzxcxkoojhnlerht.supabase.co/functions/v1/web_profile_photo?userId=${userId}`,
                     {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xcmNxZ2N6cGVtc3luZmN6ZGdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjUwNTgyNzEsImV4cCI6MjA0MDYzNDI3MX0.9-uMHOaYkUpjkPhXRt6RKEX5xVeaSEeazWc8rLok7MY'
+                            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtudXR4enhjeGtvb2pobmxlcmh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNTU4MTcsImV4cCI6MjA2NDYzMTgxN30.m8nFwSnCezcVM24ELXKrmv4QFe2P0jMSBPfDK5JUu_A'
                         }
                     }
                 );
