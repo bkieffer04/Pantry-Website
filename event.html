@@ -106,8 +106,8 @@
     </div>
     <div class="section">
       <div class="date-time">
-        <div class="date-time-label">Occurs On</div>
-        <div id="start-date"></div>
+        <div class="date-time-label">Occurs at</div>
+        <div id="location"></div>
         <div class="date-time-label">Start Time</div>
         <div id="start-time"></div>
         <div class="date-time-label">Ends on</div>
@@ -161,7 +161,7 @@
     document.getElementById('event-type').textContent = e.type || '';
     document.getElementById('event-title').textContent = e.name || '';
     document.getElementById('event-description').textContent = e.description || '';
-    document.getElementById('start-date').textContent = formatDate(e.startDate);
+    document.getElementById('location').textContent = formatDate(e.location);
     document.getElementById('start-time').textContent = formatTime(e.startDate);
     document.getElementById('end-date').textContent = formatDate(e.endDate);
     document.getElementById('end-time').textContent = formatTime(e.endDate);
